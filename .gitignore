@@ -1,0 +1,11 @@
+.gradle
+.idea
+gradle
+gradlew
+gradlew.bat
+*.iml
+*.iws
+*.ipr
+# Project exclude paths
+/build/
+/.allure/

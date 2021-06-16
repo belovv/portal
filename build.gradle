@@ -1,0 +1,115 @@
+plugins{
+    id 'java'
+    id "io.qameta.allure" version "2.8.1"
+    id "ru.vyarus.quality" version "4.6.0"
+}
+ext {
+    allureVersion = '2.14.0'
+    junitVersion = '5.8.0-M1'
+    junitPlatformVersion = '1.8.0-M1'
+}
+
+allure {
+    autoconfigure = true
+    version = allureVersion
+}
+
+group 'T1_Cloud'
+version '1.0-SNAPSHOT'
+
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    mavenCentral()
+
+}
+
+tasks.withType(Test) {
+    systemProperties = System.properties
+    systemProperties += [
+            'junit.jupiter.execution.parallel.enabled'                 : true,
+            'junit.jupiter.execution.parallel.mode.default'            : 'concurrent',
+            'junit.jupiter.execution.parallel.mode.classes.default'    : 'concurrent',
+            'junit.jupiter.execution.parallel.config.strategy'         : 'fixed',
+            'junit.jupiter.execution.parallel.config.fixed.parallelism': '10'
+    ]
+    testLogging {
+        lifecycle {
+            events "started", "skipped", "failed", "standard_error", "standard_out"
+            exceptionFormat "full"
+        }
+    }
+
+}
+
+test {
+    useJUnitPlatform()
+}
+
+dependencies {
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:${junitPlatformVersion}")
+    implementation("org.junit.jupiter:junit-jupiter:${junitVersion}")
+    implementation("io.qameta.allure:allure-junit5:${allureVersion}"){
+        exclude group: 'org.junit.platform'
+        exclude group: 'org.junit.jupiter'
+    }
+
+    implementation("com.codeborne:selenide:5.21.0")
+    implementation("io.qameta.allure:allure-java-commons:${allureVersion}")
+    implementation("io.qameta.allure:allure-selenide:${allureVersion}")
+    implementation("io.qameta.allure:allure-okhttp3:${allureVersion}")
+    implementation("io.qameta.allure:allure-assertj:${allureVersion}")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-jackson:2.9.0")
+    implementation("com.sun.mail:jakarta.mail:2.0.0")
+    implementation("org.apache.poi:poi:4.1.2")
+    implementation("org.apache.poi:poi-ooxml:4.1.2")
+    implementation("org.awaitility:awaitility:4.0.3")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.1")
+    implementation("org.aeonbits.owner:owner:1.0.12")
+    testImplementation("org.aspectj:aspectjweaver:1.9.6")
+    testImplementation("org.slf4j:slf4j-simple:2.0.0-alpha1")
+    implementation("org.assertj:assertj-core:3.19.0")
+    implementation("com.github.javafaker:javafaker:1.0.2")
+    implementation("com.browserup:browserup-proxy-core:2.1.2")
+    implementation 'ch.qos.logback:logback-classic:1.3.0-alpha5'
+}
+// временный вариант,ручной запуск автотестов
+task mantest(type: Test) {
+    useJUnitPlatform {
+        includeTags 'integration'
+        includeTags 'e2e'
+        includeTags 'web'
+    }
+}
+
+//selenium ветки, для разработки автотестов
+task testing(type: Test) {
+    useJUnitPlatform {
+        includeTags 'test'
+    }
+}
+// ветки разработчиков
+task review(type: Test) {
+    useJUnitPlatform {
+        includeTags 'test'
+    }
+}
+
+//мастер у меня и dev у разработчиков
+task regression(type: Test) {
+    useJUnitPlatform {
+        includeTags 'test'
+    }
+}
+
+task dump(type: Test) {
+    useJUnitPlatform {
+        includeTags 'dump'
+    }
+}
+
+
